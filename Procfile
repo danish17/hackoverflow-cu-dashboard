@@ -1,1 +1,1 @@
-web: gunicorn hackoverflow.wsgi --log-file -
+web: gunicorn dashboard.wsgi --log-file -
