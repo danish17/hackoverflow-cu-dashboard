@@ -1,0 +1,105 @@
+<!--Testimonial Website for Hackoverflow CU Recruitment Process
+D&D: Danish Shakeel at https://danishshakeel.me
+Source Code: https://github.com/danish17/hackoverflow-cu-dashboard
+-->
+{% load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hackoverflow</title>
+    <link rel="stylesheet" href="{% static 'main/styles.min.css' %}">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.9/css/unicons.css">
+    <link rel="icon" href="{% static 'main/favicon.ico' %}">
+
+    <script src="{% static 'main/script.min.js' %}" defer></script>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <div class="side-bar">
+        <ul>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'admin:index' %}"><i class="uil uil-user-circle"></i></a></li>
+            <li onclick="window.location.href+='add'"><a href="{% url 'add' %}"><i class="uil uil-plus-circle"></i></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'admin:logout' %}"><i class="uil uil-sign-out-alt"></i></a></li>
+            {% else %}
+            <li><a href="{% url 'admin:login' %}"><i class="uil uil-sign-in-alt"></i></a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% if user.is_authenticated %}
+    <div class="vert-container">
+        <div class="pill"></div>
+        <div class="user">
+            <h2>Hi, {{ request.user.username }}</h2>
+            <img src="https://ui-avatars.com/api/?name={{ request.user.username|make_list|first }}&background=6C63FF&color=fff">
+        </div>
+
+        <div class="inside-cont" id="yourevents">
+            <h2>Your Events</h2>
+            <div class="sep"></div>
+            <img src="{% static 'main/noevents.svg' %}" alt="" id="errorsvg">
+            <div class="event-cont">
+            {% if events_list %}
+                {% for event in events_list %}
+                    {% if request.user in event.reserved.all %}
+                    <div class="event-div">
+                        <div class="event-picture">
+                            <img src="{{ event.img.url }}" alt="Hackoverflow {{ event.name }}">
+                        </div>
+                        <div class="event-info">
+                            <div class="name">{{ event.name }}</div>
+                            <div class="date"><i class="uil uil-schedule"></i>{{ event.date }}</div>
+                            <div class="time"><i class="uil uil-clock-three"></i>{{ event.time }}</div>
+                            <div class="loc"><i class="uil uil-map-pin-alt"></i>{{ event.venue }}</div>
+                        </div>
+                        <div class="btns">
+                            <form id="reserve-{{ event.id }}" action="{% url 'reserve' event.id %}" method="post">{% csrf_token %}</form>
+                            <button class="uncheck" type="submit" form="reserve-{{ event.id }}"><i class="uil uil-times"></i>Not Going</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+        </div>
+
+        <div class="inside-cont" id="allevents">
+            <h2>All Events</h2>
+            <div class="sep"></div>
+            <div class="event-cont">
+                {% if events_list %}
+                    {% for event in events_list %}
+                    {% if request.user not in event.reserved.all %}
+                    <div class="event-div">
+                        <div class="event-picture">
+                            <img src="{{ event.img.url }}" alt="Hackoverflow {{ event.name }}">
+                        </div>
+                        <div class="event-info">
+                            <div class="name">{{ event.name }}</div>
+                            <div class="date"><i class="uil uil-schedule"></i>{{ event.date }}</div>
+                            <div class="time"><i class="uil uil-clock-three"></i>{{ event.time }}</div>
+                            <div class="loc"><i class="uil uil-map-pin-alt"></i>{{ event.venue }}</div>
+                        </div>
+                        <div class="btns">
+                            <form id="reserve-{{ event.id }}" action="{% url 'reserve' event.id %}" method="post">{% csrf_token %}</form>
+                            <button class="prim" type="submit" form="reserve-{{ event.id }}"><i class="uil uil-check"></i>Going<div class="bubble">{{ event.reserved.count }}</div></button>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p>No events are available.</p>
+            {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <h2 id="errorlogin">Please login first.</h2>
+        {% endif %}
+    </div>
+    <div class="copyright">Testimonial Website<a href="https://danishshakeel.me" target="_blank">(See my profile)</a></div>
+</body>
+</html>
